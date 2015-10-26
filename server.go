@@ -4,9 +4,7 @@ import "os"
 import "fmt"
 import "bufio"
 import "strings"
-
 import "strconv"
-
 import "in-memory-db/db"
 
 func main() {
@@ -21,7 +19,7 @@ func main() {
 
 func handleDbCommands(mdb db.Memorydb, statement string) {
 	cmdList := strings.Split(statement, " ")
-	command = cmdList[0]
+	command := cmdList[0]
 	key := cmdList[1]
 	if command == "SET" {
 		value, err := strconv.Atoi(cmdList[2])
@@ -37,7 +35,9 @@ func handleDbCommands(mdb db.Memorydb, statement string) {
 		mdb.Unset(key)
 	}
 	if command == "NUMEQUALTO" {
-		fmt.Println(mdb.NumCount(key))
+		value, _ := strconv.Atoi(key)
+		count := mdb.NumCount(value)
+		fmt.Println(count)
 	}
 
 }
