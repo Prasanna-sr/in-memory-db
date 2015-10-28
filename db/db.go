@@ -12,6 +12,7 @@ func NewDb() Memorydb {
 	mdb := Memorydb{}
 	return mdb
 }
+
 func (memory Memorydb) Get(key string) int {
 	return m[key]
 }
