@@ -7,17 +7,18 @@ import "strings"
 import "strconv"
 import "in-memory-db/dbtransaction"
 
+var mdb = dbtransaction.NewDb()
+
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 	text, _ := reader.ReadString('\n')
-	mdb := dbtransaction.NewDb()
 	for text != "END\n" {
-		handleDbCommands(mdb, strings.Trim(text, "\n"))
+		handleDbCommands(strings.Trim(text, "\n"))
 		text, _ = reader.ReadString('\n')
 	}
 }
 
-func handleDbCommands(mdb dbtransaction.Memorydb, statement string) {
+func handleDbCommands(statement string) {
 	cmdList := strings.Split(statement, " ")
 	command := cmdList[0]
 	if command == "BEGIN" {
@@ -26,7 +27,7 @@ func handleDbCommands(mdb dbtransaction.Memorydb, statement string) {
 	if command == "ROLLBACK" {
 		mdb.Rollback()
 	}
-	if command == "BEGIN" {
+	if command == "COMMIT" {
 		mdb.StopAllTransaction()
 	}
 	if command == "SET" {
