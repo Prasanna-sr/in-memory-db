@@ -5,7 +5,6 @@ import "fmt"
 import "bufio"
 import "strings"
 
-// import "strconv"
 import "in-memory-db/dbtransaction"
 
 var mdb = dbtransaction.NewDb()
@@ -42,7 +41,7 @@ func handleDbCommands(statement string) {
 	}
 	if command == "GET" {
 		key := cmdList[1]
-		if mdb.Get(key) != "0" {
+		if mdb.Get(key) != "" {
 			fmt.Println(mdb.Get(key))
 		} else {
 			fmt.Println("NULL")
@@ -54,7 +53,6 @@ func handleDbCommands(statement string) {
 	}
 	if command == "NUMEQUALTO" {
 		value := cmdList[1]
-		// value := strconv.Atoi(key)
 		count := mdb.NumCount(value)
 		fmt.Println(count)
 	}

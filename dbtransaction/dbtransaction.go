@@ -1,6 +1,5 @@
 package dbtransaction
 
-// import "fmt"
 import "in-memory-db/db"
 
 type dbTMap struct {
@@ -84,7 +83,7 @@ func (t *TranDB) Get(key string) string {
 		elem, ok := t.dbM.m[key]
 		if ok == true {
 			if elem == "-1" {
-				return "0"
+				return ""
 			}
 			return elem
 		}
@@ -94,6 +93,12 @@ func (t *TranDB) Get(key string) string {
 
 func (t *TranDB) Set(key string, value string) {
 	if t.tran == true {
+
+		_, ok1 := t.dbM.m[key]
+		if ok1 == true {
+			oldValue := t.dbM.m[key]
+			t.dbM.c[oldValue] = t.dbM.c[oldValue] - 1
+		}
 		t.dbM.m[key] = value
 		_, ok := t.dbM.c[value]
 		if ok == true {

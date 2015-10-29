@@ -1,7 +1,5 @@
 package db
 
-// import "fmt"
-
 type Memorydb struct {
 	m map[string]string
 	c map[string]int
@@ -17,13 +15,19 @@ func (memory Memorydb) Get(key string) string {
 }
 
 func (memory *Memorydb) Set(key string, value string) {
+	_, ok := memory.m[key]
+	if ok == true {
+		oldValue := memory.m[key]
+		memory.c[oldValue] = memory.c[oldValue] - 1
+	}
 	memory.m[key] = value
 	memory.c[value] = memory.c[value] + 1
+
 }
 
 func (memory *Memorydb) Unset(key string) {
-	value := memory.m[key]
-	if memory.c[value] > 0 {
+	value, ok := memory.m[key]
+	if ok == true {
 		memory.c[value] = memory.c[value] - 1
 	}
 	delete(memory.m, key)
