@@ -1,7 +1,5 @@
 package db
 
-// import "fmt"
-
 type Memorydb struct {
 }
 

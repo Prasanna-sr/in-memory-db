@@ -2,8 +2,6 @@ package dbtransaction
 
 import "in-memory-db/db"
 
-import "fmt"
-
 type Memorydb struct {
 	tran   bool
 	dbList dbTList
@@ -31,65 +29,114 @@ func (memory *Memorydb) StartTransaction() {
 		dbList = append(dbList, dbT)
 	} else {
 		newDbt := dbTran{make(map[string]int), make(map[int]int)}
-		newDbt.m = dbT.m
+
 		for k, v := range dbT.m {
 			newDbt.m[k] = v
 		}
 		for k, v := range dbT.c {
 			newDbt.c[k] = v
 		}
-		// newDbt.c = dbT.c
 		dbList = append(dbList, newDbt)
 	}
 
 }
-func (memory Memorydb) Rollback() string {
+
+func (memory *Memorydb) Rollback() bool {
 	if memory.tran == true {
-		fmt.Println(dbList)
-		dbList = dbList[:len(dbList)-1]
+		dbList = dbList[1:]
 		if len(dbList) == 0 {
 			memory.tran = false
 			dbT = dbTran{make(map[string]int), make(map[int]int)}
 		} else {
-			dbT.m = dbList[len(dbList)-1].m
-			dbT.c = dbList[len(dbList)-1].c
-			fmt.Println(dbT)
+			dbT = dbTran{make(map[string]int), make(map[int]int)}
+			for k, v := range dbList[0].m {
+				dbT.m[k] = v
+			}
+			for k, v := range dbList[0].c {
+				dbT.c[k] = v
+			}
 		}
-	} else {
-		return "NO TRANSACTION"
+		return true
 	}
-	return ""
-}
-func (memory Memorydb) StopAllTransaction() bool {
-	memory.tran = false
-	dbList = dbList[:0]
 	return false
+}
+
+func (memory *Memorydb) StopAllTransaction() bool {
+	if memory.tran == true {
+		memory.tran = false
+		for k, v := range dbT.m {
+
+			if v == -1 {
+				mdb.Unset(k)
+			} else {
+				mdb.Set(k, v)
+			}
+		}
+		return true
+	} else {
+		return false
+	}
 }
 
 func (memory Memorydb) Get(key string) int {
 	if memory.tran == true {
 		elem, ok := dbT.m[key]
 		if ok == true {
+			if elem == -1 {
+				return 0
+			}
 			return elem
 		}
 	}
 	return mdb.Get(key)
-
 }
 
 func (memory Memorydb) Set(key string, value int) {
 	if memory.tran == true {
-		dbList[len(dbList)-1].c[value] = mdb.NumCount(value) + 1
-		dbList[len(dbList)-1].m[key] = value
+		dbT.m[key] = value
+		_, ok := dbT.c[value]
+		if ok == true {
+			dbT.c[value] = dbT.c[value] + 1
+		} else {
+			dbT.c[value] = mdb.NumCount(value) + 1
+		}
 	} else {
 		mdb.Set(key, value)
 	}
 }
 
 func (memory Memorydb) Unset(key string) {
-	mdb.Unset(key)
+	if memory.tran == true {
+
+		value, ok := dbT.m[key]
+		if ok == false {
+			value = mdb.Get(key)
+		}
+		dbT.m[key] = -1
+
+		_, ok1 := dbT.c[value]
+		if ok1 == true {
+			dbT.c[value] = dbT.c[value] - 1
+		} else {
+			dbT.c[value] = mdb.NumCount(value) - 1
+		}
+	} else {
+		mdb.Unset(key)
+	}
+
 }
 
 func (memory Memorydb) NumCount(value int) int {
-	return mdb.NumCount(value)
+	if memory.tran == true {
+		_, ok := dbT.c[value]
+		if ok == true {
+			return dbT.c[value]
+		} else {
+			return mdb.NumCount(value)
+		}
+
+	} else {
+		return mdb.NumCount(value)
+	}
+
 }

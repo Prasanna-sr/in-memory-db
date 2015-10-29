@@ -25,10 +25,14 @@ func handleDbCommands(statement string) {
 		mdb.StartTransaction()
 	}
 	if command == "ROLLBACK" {
-		mdb.Rollback()
+		if !mdb.Rollback() {
+			fmt.Println("NO TRANSACTION")
+		}
 	}
 	if command == "COMMIT" {
-		mdb.StopAllTransaction()
+		if !mdb.StopAllTransaction() {
+			fmt.Println("NO TRANSACTION")
+		}
 	}
 	if command == "SET" {
 		key := cmdList[1]
@@ -40,7 +44,11 @@ func handleDbCommands(statement string) {
 	}
 	if command == "GET" {
 		key := cmdList[1]
-		fmt.Println(mdb.Get(key))
+		if mdb.Get(key) != 0 {
+			fmt.Println(mdb.Get(key))
+		} else {
+			fmt.Println("NULL")
+		}
 	}
 	if command == "UNSET" {
 		key := cmdList[1]
