@@ -4,7 +4,8 @@ import "os"
 import "fmt"
 import "bufio"
 import "strings"
-import "strconv"
+
+// import "strconv"
 import "in-memory-db/dbtransaction"
 
 var mdb = dbtransaction.NewDb()
@@ -36,15 +37,12 @@ func handleDbCommands(statement string) {
 	}
 	if command == "SET" {
 		key := cmdList[1]
-		value, err := strconv.Atoi(cmdList[2])
-		if err != nil {
-			fmt.Println(err)
-		}
+		value := cmdList[2]
 		mdb.Set(key, value)
 	}
 	if command == "GET" {
 		key := cmdList[1]
-		if mdb.Get(key) != 0 {
+		if mdb.Get(key) != "0" {
 			fmt.Println(mdb.Get(key))
 		} else {
 			fmt.Println("NULL")
@@ -55,8 +53,8 @@ func handleDbCommands(statement string) {
 		mdb.Unset(key)
 	}
 	if command == "NUMEQUALTO" {
-		key := cmdList[1]
-		value, _ := strconv.Atoi(key)
+		value := cmdList[1]
+		// value := strconv.Atoi(key)
 		count := mdb.NumCount(value)
 		fmt.Println(count)
 	}

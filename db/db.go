@@ -1,33 +1,34 @@
 package db
 
+// import "fmt"
+
 type Memorydb struct {
+	m map[string]string
+	c map[string]int
 }
 
-var m = make(map[string]int)
-var c = make(map[int]int)
-
 func NewDb() Memorydb {
-	mdb := Memorydb{}
+	mdb := Memorydb{make(map[string]string), make(map[string]int)}
 	return mdb
 }
 
-func (memory Memorydb) Get(key string) int {
-	return m[key]
+func (memory Memorydb) Get(key string) string {
+	return memory.m[key]
 }
 
-func (memory Memorydb) Set(key string, value int) {
-	m[key] = value
-	c[value] = c[value] + 1
+func (memory *Memorydb) Set(key string, value string) {
+	memory.m[key] = value
+	memory.c[value] = memory.c[value] + 1
 }
 
-func (memory Memorydb) Unset(key string) {
-	value := m[key]
-	if c[value] > 0 {
-		c[value] = c[value] - 1
+func (memory *Memorydb) Unset(key string) {
+	value := memory.m[key]
+	if memory.c[value] > 0 {
+		memory.c[value] = memory.c[value] - 1
 	}
-	delete(m, key)
+	delete(memory.m, key)
 }
 
-func (memory Memorydb) NumCount(value int) int {
-	return c[value]
+func (memory Memorydb) NumCount(value string) int {
+	return memory.c[value]
 }
